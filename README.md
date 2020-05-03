@@ -35,11 +35,11 @@ well, 那就動手做吧XDD~
 - [query方式](https://www.youtube.com/audioswap_ajax?action_get_tracks=1&dl=true&s=music&mr=25&si=0&qid=0&sh=true)
 - [query方式](https://www.youtube.com/audioswap_ajax?action_get_tracks=1&dl=true&s=music&mr=25&si=25&qid=5&sh=true)
 
-- 抓取音效庫中，免費音樂music 和 音效soundeffect
+- 抓取音效庫中，免費音樂music 和 音效soundeffects
   - music.csv
   - soundeffect.csv
   - renew_datetime.txt: YYYY-MM-DD
-- 抓取音樂和音效
+- 抓取音樂和音效，檔案名稱為 title_vid_vid.mp4，因為直接下載會預設為title.mp4，但是title會重複，所以加上vid。
   - music/
   - soundeffect/
 
@@ -138,17 +138,19 @@ function cq(a){
 - 讀取 json 下載結果
 - 整理資料
   - 刪除json檔案
-- 是否還有更多資料。has_more: true/false
+- 是否還有更多資料。has_more: TRUE/FALSE
 - 是的話更改 query 網址，再跑一遍。
 
 ## 技術學習
 
-- 認識動態加載網頁
+- 認識動態加載網頁，以及查詢資料路徑
   - 如何取得想要的 query 網址: F12(開發人員選項) + Network + XHR + Headers和Preview
 - R 操作 cmd
 - cmd 呼叫 chrome 進行操作
   - 輸入 url，等待query後，下載完成
+- R 移動檔案以及刪除
 - 解析 json 檔案
+- 特殊文字(例如法國 latin 編碼)轉換
 
 **cmd + chrome 指令:**
 
@@ -162,7 +164,8 @@ function cq(a){
 - --profile-directory="Default": will make the window open as the default chrome user。以默認的chrome用戶啟動。
 - url, "url": 輸入想去的網址
 
-> taskkill /f /im chrome.exe /f
+> taskkill /f /im chrome.exe /f  
+> 最後沒有使用
 
 - /f: forcefully terminate the process
 - /im: Image Name of the process to be terminated. '*' wildcard can be sure to specify all the tasks or image names

@@ -1,0 +1,212 @@
+---
+title: "00_web_crawler_test"
+author: "Author: [Steve, Yu](https://github.com/littlefish0331)"
+date: "`r Sys.setlocale('LC_TIME', 'English'); format(Sys.time(), '%Y %b %d %a, %H:%M:%S')`" 
+output:
+  rmdformats::readthedown:
+    css: style.css
+    self_contained: TRUE
+    thumbnails: FALSE
+    lightbox: TRUE
+    gallery: FALSE
+    highlight: tango #探戈橘
+    code_folding: show
+    toc_depth: 3
+---
+
+```{r setup, echo=TRUE, message=FALSE, warning=FALSE, results='hide'}
+rm(list = ls()); gc()
+library(knitr)
+library(kableExtra)
+library(dplyr)
+library(data.table)
+library(jsonlite)
+library(filesstrings)
+library(stringi)
+knitr::opts_chunk$set(
+	# 這邊是針對所有chunk的設定
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+---
+
+# try idea
+
+```{r}
+query_s <- "music" #music, soundeffect
+query_mr <- 4
+query_si <- 0
+query_url <- paste0("https://www.youtube.com/audioswap_ajax?action_get_tracks=1&dl=true&s=",
+                    query_s, "&mr=", query_mr, "&si=", query_si)
+cmd <- paste0('start chrome "', query_url, '"')
+shell(cmd = cmd)
+
+# ---
+download_path <- "C:/Users/littlefish/Downloads/audioswap_ajax.json"
+move_to <- "../data/"
+file.exists(download_path)
+# library(filesstrings)
+file.move(files = download_path, destinations = move_to, overwrite = T)
+
+# ---
+file_path <- paste0(move_to, "audioswap_ajax.json")
+file.exists(file_path)
+response = fromJSON(txt = file_path)
+response$tracks
+
+# ---
+col_order <- c("vid", "artist", "album", "title", "len", 
+               "display_genre", "display_mood", "display_category", "genre", "mood", "category",
+               "instruments", "artist_url", "artist_channel_url", 
+               "license_type", "downloadable", "download_url", 
+               "favorite", "popularity_percentile",
+               "is_new_track", "track_url", 
+               "streamid", "reference_vid", "fp_ref_id", "waveform_url")
+tmp01 <- response$tracks %>% setDT()
+tmp01[, col_order, with = F]
+
+# ---
+response$has_more
+```
+
+---
+
+# 爬蟲GOGO
+
+- 用 R 操作 cmd 呼叫 query 網址
+  - 下載後，移動json檔案到設定的資料夾
+  - 移動檔案需要時間，所以要做 file.exist()檢查，停頓一下時間。
+- 讀取 json 下載結果
+- 整理資料
+  - 刪除json檔案
+- 是否還有更多資料。has_more: true/false
+- 是的話更改 query 網址，再跑一遍。
+
+# query
+
+```{r}
+has_more <- "TRUE"
+query_s <- "music" #music, soundeffect
+query_mr <- 200
+query_si <- 0
+query_url <- paste0("https://www.youtube.com/audioswap_ajax?action_get_tracks=1&dl=true&s=",
+                    query_s, "&mr=", query_mr, "&si=", query_si)
+cmd <- paste0('start chrome "', query_url, '"')
+download_path <- "C:/Users/littlefish/Downloads/audioswap_ajax.json"
+move_to <- "../data/"
+file_path <- paste0(move_to, "audioswap_ajax.json")
+col_order <- c("vid", "artist", "album", "title", "len", 
+               "display_genre", "display_mood", "display_category", "genre", "mood", "category",
+               "instruments", "artist_url", "artist_channel_url", 
+               "license_type", "downloadable", "download_url", 
+               "favorite", "popularity_percentile",
+               "is_new_track", "track_url", 
+               "streamid", "reference_vid", "fp_ref_id", "waveform_url")
+
+res_tmp <- list()
+i <- 1
+if (file.exists(download_path)) file.remove(download_path)
+while (has_more=="TRUE") {
+  # ---
+  shell(cmd = cmd)
+  
+  # ---
+  while (!file.exists(download_path)) Sys.sleep(1)
+  file.move(files = download_path, destinations = move_to, overwrite = T)
+  
+  # ---
+  while (!file.exists(file_path)) Sys.sleep(0.5)
+  response = fromJSON(txt = file_path)
+  tmp01 <- response$tracks %>% setDT()
+  tmp01$instruments <- tmp01$instruments %>% lapply(., listcheck)
+  res_tmp[[i]] <- tmp01[, col_order, with = F]
+  
+  # ---
+  file.remove(file_path)
+  query_si <- 0+100*i
+  i <- i+1
+  query_url <- paste0("https://www.youtube.com/audioswap_ajax?action_get_tracks=1&dl=true&s=",
+                    query_s, "&mr=", query_mr, "&si=", query_si)
+  cmd <- paste0('start chrome "', query_url, '"')
+  has_more <- response$has_more
+  Sys.sleep(5)
+}
+```
+
+# 整理資料
+
+```{r}
+res <- res_tmp %>% rbindlist()
+res %>% fwrite("../data/music.csv")
+```
+
+---
+
+# download
+
+```{r}
+a <- Sys.time()
+music <- fread("../data/music.csv", encoding = "UTF-8")
+music_url <- music$download_url
+music_title <- music$title
+music_vid <- music$vid
+
+i <- 1
+for (i in 1:nrow(music)) {
+  nn <- paste0(music_title[i], "_vid_", music_vid[i], ".mp3") %>% 
+    stri_trans_general(., "Latin-ASCII") %>% iconv(., to = "UTF-8")
+  download.file(url = music_url[i], destfile = paste0("../music/", nn), mode = "wb")
+  Sys.sleep(0.2)
+}
+nn %>% Encoding()
+enc2utf8(x = nn)
+
+# ---
+a <- Sys.time()
+soundeffects <- fread("../data/soundeffects.csv", encoding = "UTF-8")
+sound_title <- soundeffects$title
+sound_vid <- soundeffects$title
+
+i <- 1
+for (i in 1:nrow(soundeffects)) {
+  nn <- paste0(sound_title[i], "_vid_", sound_vid[i], ".mp3") %>% 
+    stri_trans_general(., "Latin-ASCII") %>% iconv(., to = "UTF-8")
+  download.file(url = music_url[i], destfile = paste0("../soundeffects/", nn), mode = "wb")
+  Sys.sleep(0.2)
+}
+b <- Sys.time()
+b-a
+
+```
+
+```{r}
+paste0(music_title[i], "_vid_", music_vid[i], ".mp3") %>% 
+    iconv(., to = "ASCII//TRANSLIT")
+stri_trans_general(music_title[i], "Latin-ASCII") %>% iconv(., to = "UTF-8")
+iconv(music_title[i],to="ASCII//TRANSLIT")
+paste0(music_title[i], "_vid_", music_vid[i], ".mp3")
+```
+
+===
+
+# END
+
+# 檢查欄位
+
+instruments: 是list，但是fwrite儲存list前提是list不可為空值。
+
+```{r}
+listcheck <- function(x){
+  if(length(x)==0) return("")
+  else return(x %>% gsub(",", " ", .))
+} 
+tt1 <- tmp01$instruments
+tt2 <- tmp01$instruments %>% lapply(., listcheck)
+identical(tt1, tt2)
+all.equal(tt1, tt2)
+
+```
+
