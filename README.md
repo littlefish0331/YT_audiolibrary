@@ -32,8 +32,8 @@ well, 那就動手做吧XDD~
 
 - [www-audiolibrary.js](https://www.youtube.com/yts/jsbin/www-audiolibrary-vflhVwl_P/www-audiolibrary.js)
 - [音效庫 - YouTube](https://www.youtube.com/audiolibrary/music?nv=1)
-- [query方式](https://www.youtube.com/audioswap_ajax?action_get_tracks=1&dl=true&s=music&mr=25&si=0&qid=0&sh=true)
-- [query方式](https://www.youtube.com/audioswap_ajax?action_get_tracks=1&dl=true&s=music&mr=25&si=25&qid=5&sh=true)
+- query方式01 https://www.youtube.com/audioswap_ajax?action_get_tracks=1&dl=true&s=music&mr=25&si=0&qid=0&sh=true
+- query方式02 https://www.youtube.com/audioswap_ajax?action_get_tracks=1&dl=true&s=music&mr=25&si=25&qid=5&sh=true
 
 - 抓取音效庫中，免費音樂music 和 音效soundeffects
   - music.csv
