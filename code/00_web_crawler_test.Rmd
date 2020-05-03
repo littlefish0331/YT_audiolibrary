@@ -145,7 +145,7 @@ res %>% fwrite("../data/music.csv")
 
 ---
 
-# download
+# download music and soundeffects
 
 ```{r}
 a <- Sys.time()
@@ -154,31 +154,37 @@ music_url <- music$download_url
 music_title <- music$title
 music_vid <- music$vid
 
-i <- 1
+i <- 1884
 for (i in 1:nrow(music)) {
   nn <- paste0(music_title[i], "_vid_", music_vid[i], ".mp3") %>% 
-    stri_trans_general(., "Latin-ASCII") %>% iconv(., to = "UTF-8")
-  download.file(url = music_url[i], destfile = paste0("../music/", nn), mode = "wb")
-  Sys.sleep(0.2)
-}
-nn %>% Encoding()
-enc2utf8(x = nn)
-
-# ---
-a <- Sys.time()
-soundeffects <- fread("../data/soundeffects.csv", encoding = "UTF-8")
-sound_title <- soundeffects$title
-sound_vid <- soundeffects$title
-
-i <- 1
-for (i in 1:nrow(soundeffects)) {
-  nn <- paste0(sound_title[i], "_vid_", sound_vid[i], ".mp3") %>% 
-    stri_trans_general(., "Latin-ASCII") %>% iconv(., to = "UTF-8")
-  download.file(url = music_url[i], destfile = paste0("../soundeffects/", nn), mode = "wb")
+    stri_trans_general(., "Latin-ASCII") %>% iconv(., to = "UTF-8") %>% 
+    gsub(" |/", "_", .) %>% gsub("(\\?|:)", "", .)
+  # print(paste(i, nn)) #顯示進度
+  download.file(url = music_url[i], destfile = paste0("../music/", nn), mode = "wb", quiet = T)
   Sys.sleep(0.2)
 }
 b <- Sys.time()
 b-a
+
+# ---
+a <- Sys.time()
+soundeffects <- fread("../data/soundeffects.csv", encoding = "UTF-8")
+sound_url <- soundeffects$download_url
+sound_title <- soundeffects$title
+sound_vid <- soundeffects$vid
+
+i <- 1
+for (i in 1:nrow(soundeffects)) {
+  nn <- paste0(sound_title[i], "_vid_", sound_vid[i], ".mp3") %>% 
+    stri_trans_general(., "Latin-ASCII") %>% iconv(., to = "UTF-8") %>% 
+    gsub(" |/", "_", .) %>% gsub("(\\?)", "", .)
+  # print(paste(i, nn)) #顯示進度
+  download.file(url = sound_url[i], destfile = paste0("../soundeffects/", nn), mode = "wb", quiet = T)
+  Sys.sleep(0.2)
+}
+b <- Sys.time()
+b-a
+
 
 ```
 
