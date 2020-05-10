@@ -1,19 +1,22 @@
 # README
 
-**尚未處理的問題:**
+最後更新: 2020-05-10
+
+## 尚未處理的問題
 
 - 還不會用 phantomJS或Selenium等方式解決動態加載的問題
-- 建立簡單的網頁
+- 建立網頁
   - 聽取錄音: 整首, 前30秒, 隨機30秒
   - 新增自己的tags，並且會寫入本機檔案。
-- 關閉特定的chrome 分頁
+- 關閉特定的chrome分頁
+  - 如果用 terminal start chrome 才會有這問題，程式去呼叫，下載後會自動消失
   - 利用開啟 chrome 的分頁，省去登入google的問題
   - 無法在呼叫完成之後，關閉 chrome 特定分頁，只能用 taskkill 殺死所有 chrome 的 process
 - 利用 batch 指令指定 chrome 下載的位置。
 
 ## 緣由
 
-- [音效庫 - YouTube](https://www.youtube.com/audiolibrary/music?nv=1)
+[音效庫 - YouTube](https://www.youtube.com/audiolibrary/music?nv=1)
 
 有天女友在找要上片的背景音樂時，  
 我發現雖然介面上很友善，有各種分類(例如: 類型、樂器、情境)，  
@@ -39,7 +42,7 @@ well, 那就動手做吧XDD~
   - music.csv
   - soundeffect.csv
   - renew_datetime.txt: YYYY-MM-DD
-- 抓取音樂和音效，檔案名稱為 title_vid_vid.mp4，因為直接下載會預設為title.mp4，但是title會重複，所以加上vid。
+- 下載音樂和音效，檔案名稱為 title_vid_vid.mp4，因為直接下載會預設為title.mp4，但是title會重複，所以加上vid。
   - music/
   - soundeffect/
 
